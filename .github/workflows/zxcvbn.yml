@@ -1,4 +1,4 @@
-name: zxcvbn
+name: yxcvbn
 
 on:
   pull_request:
