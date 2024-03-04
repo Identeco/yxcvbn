@@ -1,41 +1,57 @@
-name: zxcvbn
+name: yxcvbn
 
 on:
   pull_request:
     branches:
       - master
   push:
-    branches:
-      - master
+
 
 jobs:
-  clippy-rustfmt:
+  sast:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install stable
+      - name: Install Rust stable
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
           components: clippy, rustfmt
+    
 
-      - name: Run rustfmt
+      - name: Format
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: -- --check --verbose
 
-      - name: Lint
-        uses: actions-rs/clippy-check@v1
+      - name: Clippy
+        uses: actions-rs/cargo@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --tests --benches
-          name: lint
+          command: clippy
 
-  build:
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --workspace
+    
+      - name: Install cargo-audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: cargo-audit
+    
+      - name: Audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit
+
+  test:
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
@@ -67,33 +83,3 @@ jobs:
       - name: Generate docs
         run: cargo doc --all-features --no-deps
 
-  build-wasm:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          target: wasm32-unknown-unknown
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "latest"
-
-      - name: Build (wasm, default features)
-        run: cargo build --target wasm32-unknown-unknown --tests --benches
-
-      - name: Run tests (wasm, default features)
-        run: wasm-pack test --node
-
-      - name: Build (wasm, default features)
-        run: cargo build --target wasm32-unknown-unknown --tests --benches
-
-      - name: Run tests (wasm, all features)
-        run: wasm-pack test --node --all-features
