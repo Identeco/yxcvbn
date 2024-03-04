@@ -71,7 +71,7 @@ lazy_static! {
         table
     };
     static ref GRAPHS: HashMap<&'static str, &'static HashMap<char, Vec<Option<&'static str>>>> = {
-        let mut table = HashMap::with_capacity(4);
+        let mut table = HashMap::with_capacity(5);
         table.insert("qwerty", &*super::adjacency_graphs::QWERTY);
         table.insert("qwertz", &*super::adjacency_graphs::QWERTZ);
         table.insert("dvorak", &*super::adjacency_graphs::DVORAK);

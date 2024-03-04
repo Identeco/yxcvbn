@@ -2,7 +2,7 @@ use criterion::black_box;
 use criterion::Criterion;
 use criterion::{criterion_group, criterion_main};
 
-use zxcvbn::zxcvbn;
+use yxcvbn::zxcvbn;
 
 pub fn bench_zxcvbn(c: &mut Criterion) {
     c.bench_function("zxcvbn", |b| {

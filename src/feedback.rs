@@ -179,6 +179,7 @@ pub(crate) fn get_feedback(score: u8, sequence: &[Match]) -> Option<Feedback> {
     Some(feedback)
 }
 
+/// helper function to get feedback for a match
 fn get_match_feedback(cur_match: &Match, is_sole_match: bool) -> Feedback {
     match cur_match.pattern {
         MatchPattern::Dictionary(ref pattern) => {
@@ -228,6 +229,7 @@ fn get_match_feedback(cur_match: &Match, is_sole_match: bool) -> Feedback {
     }
 }
 
+/// helper function to get dictionary feedback for a match
 fn get_dictionary_match_feedback(
     cur_match: &Match,
     pattern: &DictionaryPattern,

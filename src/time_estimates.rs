@@ -6,8 +6,8 @@
 //! # use std::error::Error;
 //! #
 //! # fn main() -> Result<(), Box<dyn Error>> {
-//! use zxcvbn::zxcvbn;
-//! use zxcvbn::time_estimates::CrackTimes;
+//! use yxcvbn::zxcvbn;
+//! use yxcvbn::time_estimates::CrackTimes;
 //!
 //! let entropy = zxcvbn("password123", &[])?;
 //! assert_eq!(entropy.crack_times().guesses(), 596);

@@ -1,4 +1,4 @@
-# zxcvbn
+# yxcvbn
 
 [![Version](https://img.shields.io/crates/v/zxcvbn.svg)](https://crates.io/crates/zxcvbn)
 [![License](https://img.shields.io/crates/l/zxcvbn.svg)](https://github.com/shssoichiro/zxcvbn-rs/blob/master/LICENSE)
@@ -41,9 +41,9 @@ Full API documentation can be found [here](https://docs.rs/zxcvbn/*/zxcvbn/).
 Usage example:
 
 ```rust
-extern crate zxcvbn;
+extern crate yxcvbn;
 
-use zxcvbn::zxcvbn;
+use yxcvbn::zxcvbn;
 
 fn main() {
     let estimate = zxcvbn("correcthorsebatterystaple", &[]).unwrap();
