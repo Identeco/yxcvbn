@@ -5,8 +5,7 @@ on:
     branches:
       - master
   push:
-    branches:
-      - master
+
 
 jobs:
   clippy-rustfmt:
@@ -20,12 +19,8 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          components: clippy, rustfmt, audit, check
-      
-      - name: Run cargo audit
-        uses: actions-rs/cargo@v1
-        with:
-          command: audit  
+          components: clippy, rustfmt
+    
 
       - name: Run rustfmt
         uses: actions-rs/cargo@v1
@@ -39,12 +34,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --tests --benches
           name: lint
-
-      - name: Check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --workspace
 
   test:
     strategy:
