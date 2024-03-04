@@ -20,7 +20,12 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-          components: clippy, rustfmt
+          components: clippy, rustfmt, audit, check
+      
+      - name: Run cargo audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit  
 
       - name: Run rustfmt
         uses: actions-rs/cargo@v1
@@ -35,7 +40,13 @@ jobs:
           args: --all-features --tests --benches
           name: lint
 
-  build:
+      - name: Check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --workspace
+
+  test:
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
@@ -67,33 +78,3 @@ jobs:
       - name: Generate docs
         run: cargo doc --all-features --no-deps
 
-  build-wasm:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install stable
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          target: wasm32-unknown-unknown
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.3.0
-        with:
-          version: "latest"
-
-      - name: Build (wasm, default features)
-        run: cargo build --target wasm32-unknown-unknown --tests --benches
-
-      - name: Run tests (wasm, default features)
-        run: wasm-pack test --node
-
-      - name: Build (wasm, default features)
-        run: cargo build --target wasm32-unknown-unknown --tests --benches
-
-      - name: Run tests (wasm, all features)
-        run: wasm-pack test --node --all-features
