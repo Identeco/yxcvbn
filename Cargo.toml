@@ -1,5 +1,6 @@
 [package]
 authors = [
+    "Josh Holmer <jholmer.in@gmail.com>",
     "Lia an Haack <lia@staff.identeco.de>, Fabian Odenthal <fabian@staff.identeco.de>",
 ]
 description = "An entropy-based password strength estimator, originally for Javascript by Dropbox."
