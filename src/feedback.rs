@@ -248,20 +248,24 @@ fn get_dictionary_match_feedback(
         } else {
             Warning::ThisIsSimilarToACommonlyUsedPassword
         }),
-        DictionaryType::English => {
+        DictionaryType::EnglishWiki
+        | DictionaryType::GermanWiki
+        | DictionaryType::GermanCommonWords => {
             if is_sole_match {
                 Some(Warning::AWordByItselfIsEasyToGuess)
             } else {
                 None
             }
         }
-        DictionaryType::Surnames | DictionaryType::FemaleNames | DictionaryType::MaleNames => {
-            Some(if is_sole_match {
-                Warning::NamesAndSurnamesByThemselvesAreEasyToGuess
-            } else {
-                Warning::CommonNamesAndSurnamesAreEasyToGuess
-            })
-        }
+        DictionaryType::Surnames
+        | DictionaryType::FemaleNames
+        | DictionaryType::MaleNames
+        | DictionaryType::GermanNames
+        | DictionaryType::GermanSurnames => Some(if is_sole_match {
+            Warning::NamesAndSurnamesByThemselvesAreEasyToGuess
+        } else {
+            Warning::CommonNamesAndSurnamesAreEasyToGuess
+        }),
         _ => None,
     };
 
@@ -321,6 +325,51 @@ mod tests {
         assert_eq!(
             entropy.feedback.unwrap().warning,
             Some(Warning::ThisIsSimilarToACommonlyUsedPassword)
+        );
+    }
+
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    fn test_german_names_feedback() {
+        use crate::zxcvbn;
+
+        let password = "schmidt";
+        let entropy = zxcvbn(password, &[]).unwrap();
+        assert_eq!(
+            entropy.feedback.unwrap().warning,
+            Some(Warning::NamesAndSurnamesByThemselvesAreEasyToGuess)
+        );
+
+        let password = "schmidt123";
+        let entropy = zxcvbn(password, &[]).unwrap();
+        assert_eq!(
+            entropy.feedback.unwrap().warning,
+            Some(Warning::CommonNamesAndSurnamesAreEasyToGuess)
+        );
+
+        let password = "Peter";
+        let entropy = zxcvbn(password, &[]).unwrap();
+        assert_eq!(
+            entropy.feedback.unwrap().warning,
+            Some(Warning::NamesAndSurnamesByThemselvesAreEasyToGuess)
+        );
+
+        let password = "Peter678";
+        let entropy = zxcvbn(password, &[]).unwrap();
+        assert_eq!(
+            entropy.feedback.unwrap().warning,
+            Some(Warning::CommonNamesAndSurnamesAreEasyToGuess)
+        );
+    }
+
+    #[cfg_attr(not(target_arch = "wasm32"), test)]
+    fn test_german_common_words_feedback() {
+        use crate::zxcvbn;
+
+        let password = "hauSaufGaben";
+        let entropy = zxcvbn(password, &[]).unwrap();
+        assert_eq!(
+            entropy.feedback.unwrap().warning,
+            Some(Warning::AWordByItselfIsEasyToGuess)
         );
     }
 }
