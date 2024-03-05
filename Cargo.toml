@@ -1,11 +1,12 @@
 [package]
 authors = [
     "Josh Holmer <jholmer.in@gmail.com>",
-    "Lia an Haack <lia@staff.identeco.de>, Fabian Odenthal <fabian@staff.identeco.de>",
+    "Lia an Haack <lia@staff.identeco.de>",
+    "Fabian Odenthal <fabian@staff.identeco.de>",
 ]
 description = "An entropy-based password strength estimator, originally for Javascript by Dropbox."
 documentation = "https://docs.rs/yxcvbn"
-homepage = "https://identeco.de/en/"
+homepage = "https://identeco.de/"
 license = "MIT"
 name = "yxcvbn"
 repository = "https://github.com/Identeco/yxcvbn"
@@ -14,7 +15,7 @@ edition = "2021"
 rust-version = "1.63"
 
 [badges]
-maintenance = { status = "passively-maintained" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 derive_builder = { version = "0.20.0", optional = true }
