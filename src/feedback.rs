@@ -260,8 +260,8 @@ fn get_dictionary_match_feedback(
         DictionaryType::Surnames
         | DictionaryType::FemaleNames
         | DictionaryType::MaleNames
-        | DictionaryType::NamesGerman
-        | DictionaryType::SurnamesGerman => Some(if is_sole_match {
+        | DictionaryType::GermanNames
+        | DictionaryType::GermanSurnames => Some(if is_sole_match {
             Warning::NamesAndSurnamesByThemselvesAreEasyToGuess
         } else {
             Warning::CommonNamesAndSurnamesAreEasyToGuess
