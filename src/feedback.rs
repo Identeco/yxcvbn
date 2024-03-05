@@ -248,7 +248,7 @@ fn get_dictionary_match_feedback(
         } else {
             Warning::ThisIsSimilarToACommonlyUsedPassword
         }),
-        DictionaryType::English => {
+        DictionaryType::EnglishWiki | DictionaryType::GermanWiki => {
             if is_sole_match {
                 Some(Warning::AWordByItselfIsEasyToGuess)
             } else {
