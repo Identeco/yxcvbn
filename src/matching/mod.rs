@@ -71,8 +71,9 @@ lazy_static! {
         table
     };
     static ref GRAPHS: HashMap<&'static str, &'static HashMap<char, Vec<Option<&'static str>>>> = {
-        let mut table = HashMap::with_capacity(4);
+        let mut table = HashMap::with_capacity(5);
         table.insert("qwerty", &*super::adjacency_graphs::QWERTY);
+        table.insert("qwertz", &*super::adjacency_graphs::QWERTZ);
         table.insert("dvorak", &*super::adjacency_graphs::DVORAK);
         table.insert("keypad", &*super::adjacency_graphs::KEYPAD);
         table.insert("mac_keypad", &*super::adjacency_graphs::MAC_KEYPAD);
@@ -1107,8 +1108,26 @@ mod tests {
     }
 
     #[test]
-    fn test_matches_spatial_patterns_surrounded_by_non_spatial_patterns() {
-        let password = "6tfGHJ";
+    fn test_matches_spatial_patterns_surrounded_by_non_spatial_patterns_qwertz() {
+        let password = "6zhGHJ";
+        let m = (matching::SpatialMatch {})
+            .get_matches(password, &HashMap::new())
+            .into_iter()
+            .find(|m| m.token == *password)
+            .unwrap();
+        let p = if let MatchPattern::Spatial(ref p) = m.pattern {
+            p
+        } else {
+            panic!("Wrong match pattern")
+        };
+        assert_eq!(p.graph, "qwertz".to_string());
+        assert_eq!(p.turns, 3);
+        assert_eq!(p.shifted_count, 3);
+    }
+
+    #[test]
+    fn test_matches_spatial_patterns_surrounded_by_non_spatial_patterns_qwerty() {
+        let password = "6YhJkL";
         let m = (matching::SpatialMatch {})
             .get_matches(password, &HashMap::new())
             .into_iter()
@@ -1133,6 +1152,12 @@ mod tests {
             ("hGFd", "qwerty", 1, 2),
             ("/;p09876yhn", "qwerty", 3, 0),
             ("Xdr%", "qwerty", 1, 2),
+            ("1\"345", "qwertz", 1, 1),
+            ("@WSY", "qwertz", 3, 3),
+            ("6tfGHJ", "qwertz", 2, 3),
+            ("hGFd", "qwertz", 1, 2),
+            ("äölölkm", "qwertz", 4, 0),
+            ("xdr%", "qwertz", 1, 1),
             ("159-", "keypad", 1, 0),
             ("*84", "keypad", 1, 0),
             ("/8520", "keypad", 1, 0),
