@@ -5,7 +5,7 @@
 ## Overview
 
 `yxcvbn` is a German and English password strength estimator based on the rust crate [zxcvbn](https://github.com/shssoichiro/zxcvbn-rs), which is based on Dropbox's zxcvbn library.
-using pattern matching and conservative estimation, it recognizes and weights
+Using pattern matching and conservative estimation, it recognizes and weights
 
 - 30k common passwords,
 - German and English common names and surnames,
