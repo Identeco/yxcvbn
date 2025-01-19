@@ -30,6 +30,9 @@ pub mod matching;
 mod scoring;
 pub mod time_estimates;
 
+#[cfg(feature = "ser")]
+mod serialization_utils;
+
 #[cfg(not(target_arch = "wasm32"))]
 fn time_scoped<F, R>(f: F) -> (R, Duration)
 where
@@ -78,12 +81,16 @@ where
 }
 
 /// Contains the results of an entropy calculation
-#[derive(Debug, Clone)]
-#[cfg_attr(feature = "ser", derive(serde::Serialize))]
+#[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "ser", derive(serde::Deserialize, serde::Serialize))]
 pub struct Entropy {
     /// Estimated guesses needed to crack the password
     guesses: u64,
     /// Order of magnitude of `guesses`
+    #[cfg_attr(
+        feature = "ser",
+        serde(deserialize_with = "crate::serialization_utils::deserialize_f64_null_as_nan")
+    )]
     guesses_log10: f64,
     /// List of back-of-the-envelope crack time estimations based on a few scenarios.
     crack_times: time_estimates::CrackTimes,
@@ -202,6 +209,54 @@ mod tests {
             serde_json::to_string(&zxcvbn(&password, &inputs)).ok();
             TestResult::from_bool(true)
         }
+
+        #[cfg(feature = "ser")]
+        fn test_zxcvbn_serialization_roundtrip(password: String, user_inputs: Vec<String>) -> TestResult {
+            let inputs = user_inputs.iter().map(|s| s.as_ref()).collect::<Vec<&str>>();
+            let entropy = zxcvbn(&password, &inputs);
+            // When the entropy is not a finite number (otherwise our equality test fails). We test
+            // this scenario separately
+            if !entropy.guesses_log10.is_finite() {
+                //panic!("infinite guesses_log10: {} => {}", password, entropy.guesses_log10);
+                return TestResult::discard();
+            }
+            let serialized_entropy = serde_json::to_string(&entropy);
+            assert!(serialized_entropy.is_ok());
+            let serialized_entropy = serialized_entropy.expect("serialized entropy");
+            let deserialized_entropy = serde_json::from_str::<Entropy>(&serialized_entropy);
+            assert!(deserialized_entropy.is_ok());
+            let deserialized_entropy = deserialized_entropy.expect("deserialized entropy");
+
+            // Apply a mask to trim the last bit when comparing guesses_log10, since Serde loses
+            // precision when deserializing
+            const MASK: u64 = 0x1111111111111110;
+
+            let original_equal_to_deserialized_version =
+                (entropy.guesses == deserialized_entropy.guesses) &&
+                (entropy.crack_times == deserialized_entropy.crack_times) &&
+                (entropy.score == deserialized_entropy.score) &&
+                (entropy.feedback == deserialized_entropy.feedback) &&
+                (entropy.sequence == deserialized_entropy.sequence) &&
+                (entropy.calc_time == deserialized_entropy.calc_time) &&
+                (entropy.guesses_log10.to_bits() & MASK == deserialized_entropy.guesses_log10.to_bits() & MASK);
+
+            TestResult::from_bool(original_equal_to_deserialized_version)
+        }
+    }
+
+    #[test]
+    #[cfg(feature = "ser")]
+    fn test_zxcvbn_serialization_non_finite_guesses_log10() {
+        let entropy = zxcvbn("", &[]);
+        assert!(!entropy.guesses_log10.is_finite());
+
+        let serialized_entropy = serde_json::to_string(&entropy);
+        assert!(serialized_entropy.is_ok());
+        let serialized_entropy = serialized_entropy.expect("serialized entropy");
+        let deserialized_entropy = serde_json::from_str::<Entropy>(&serialized_entropy);
+        assert!(deserialized_entropy.is_ok());
+        let deserialized_entropy = deserialized_entropy.expect("deserialized entropy");
+        assert!(!deserialized_entropy.guesses_log10.is_finite());
     }
 
     #[cfg_attr(not(target_arch = "wasm32"), test)]

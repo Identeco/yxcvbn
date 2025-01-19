@@ -493,9 +493,9 @@ impl Estimator for SequencePattern {
 impl Estimator for RegexPattern {
     fn estimate(&mut self, token: &str) -> u64 {
         if CHAR_CLASS_BASES.keys().any(|x| *x == self.regex_name) {
-            CHAR_CLASS_BASES[self.regex_name].pow(token.chars().count() as u32)
+            CHAR_CLASS_BASES[&*self.regex_name].pow(token.chars().count() as u32)
         } else {
-            match self.regex_name {
+            match &*self.regex_name {
                 "recent_year" => {
                     let year_space =
                         (self.regex_match[0].parse::<i32>().unwrap() - *REFERENCE_YEAR).abs();
@@ -829,7 +829,7 @@ mod tests {
     fn test_regex_guesses_lowercase() {
         let token = "aizocdk";
         let mut p = RegexPattern {
-            regex_name: "alpha_lower",
+            regex_name: "alpha_lower".to_owned(),
             regex_match: vec![token.to_string()],
         };
         assert_eq!(p.estimate(token), 26u64.pow(7));
@@ -839,7 +839,7 @@ mod tests {
     fn test_regex_guesses_alphanumeric() {
         let token = "ag7C8";
         let mut p = RegexPattern {
-            regex_name: "alphanumeric",
+            regex_name: "alphanumeric".to_owned(),
             regex_match: vec![token.to_string()],
         };
         assert_eq!(p.estimate(token), 62u64.pow(5));
@@ -849,7 +849,7 @@ mod tests {
     fn test_regex_guesses_distant_year() {
         let token = "1972";
         let mut p = RegexPattern {
-            regex_name: "recent_year",
+            regex_name: "recent_year".to_owned(),
             regex_match: vec![token.to_string()],
         };
         assert_eq!(
@@ -862,7 +862,7 @@ mod tests {
     fn test_regex_guesses_recent_year() {
         let token = "2005";
         let mut p = RegexPattern {
-            regex_name: "recent_year",
+            regex_name: "recent_year".to_owned(),
             regex_match: vec![token.to_string()],
         };
         assert_eq!(p.estimate(token), scoring::MIN_YEAR_SPACE as u64);
@@ -872,7 +872,7 @@ mod tests {
     fn test_regex_guesses_current_year() {
         let token = time::OffsetDateTime::now_utc().year().to_string();
         let mut p = RegexPattern {
-            regex_name: "recent_year",
+            regex_name: "recent_year".to_owned(),
             regex_match: vec![token.to_string()],
         };
         assert_eq!(p.estimate(&token), scoring::MIN_YEAR_SPACE as u64);

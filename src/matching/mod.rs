@@ -14,7 +14,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "builder", derive(Builder))]
 #[cfg_attr(feature = "builder", builder(default))]
-#[cfg_attr(feature = "ser", derive(serde::Serialize))]
+#[cfg_attr(feature = "ser", derive(serde::Deserialize, serde::Serialize))]
 pub struct Match {
     /// Beginning of the match.
     pub i: usize,
@@ -517,7 +517,7 @@ impl Matcher for SequenceMatch {
                     ("unicode", 26)
                 };
                 let pattern = MatchPattern::Sequence(SequencePattern {
-                    sequence_name,
+                    sequence_name: sequence_name.to_owned(),
                     sequence_space,
                     ascending: delta > 0,
                 });
@@ -570,7 +570,7 @@ impl Matcher for RegexMatch {
             for capture in regex.captures_iter(password) {
                 let m = capture.get(0).unwrap();
                 let pattern = MatchPattern::Regex(RegexPattern {
-                    regex_name: name,
+                    regex_name: name.to_owned(),
                     regex_match: capture
                         .iter()
                         .map(|x| x.unwrap().as_str().to_string())

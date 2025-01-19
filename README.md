@@ -22,7 +22,7 @@ Consider using zxcvbn as an algorithmic alternative to password composition poli
 zxcvbn = "2"
 ```
 
-zxcvbn has a "ser" feature flag you can enable if you require serialization support via `serde`.
+zxcvbn has a "ser" feature flag you can enable if you require serialization/deserialization support via `serde`.
 It is disabled by default to reduce bloat.
 
 zxcvbn follows Semantic Versioning.
